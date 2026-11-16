@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Umamusume Race Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style>
+:root{--blue:#1f6499;--blue2:#17507d;--gold:#f2b01e;--turf:#4f9d4a;--turf2:#5cae56;--dirt:#b98a58;--dirt2:#a87a4a;--ink:#10263a;--bg1:#a6d8f5;--bg2:#d3efb3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e8f1f8;--bg1:#0c2438;--bg2:#12331f}}
+:root[data-theme="dark"]{--ink:#e8f1f8;--bg1:#0c2438;--bg2:#12331f}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;font:500 15px/1.45 "Zen Maru Gothic","Hiragino Maru Gothic ProN","Quicksand",system-ui,sans-serif;color:var(--ink);background:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.5px) 0 0/14px 14px,linear-gradient(180deg,var(--bg1),var(--bg2)) fixed}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{padding:22px clamp(14px,3vw,32px) 6px}
+h1{margin:0;font-weight:900;font-size:clamp(26px,4.5vw,44px);letter-spacing:-.01em}
+header p{margin:2px 0 0;opacity:.8}
+.flag{height:10px;margin-top:10px;max-width:260px;border-radius:5px;background:conic-gradient(var(--ink) 25%,#fff 0 50%,var(--ink) 0 75%,#fff 0)0 0/20px 20px}
+main{display:grid;grid-template-columns:minmax(290px,350px) minmax(0,1fr) minmax(250px,310px);gap:16px;padding:12px clamp(14px,3vw,32px) 40px;align-items:start}
+@media(max-width:1020px){main{grid-template-columns:1fr 1fr}.mid{grid-column:1/-1;order:-1}}
+@media(max-width:640px){main{grid-template-columns:1fr}}
+.col{display:grid;gap:16px}
+.p{background:var(--blue);color:#fff;border-radius:16px;padding:16px}
+.p h2{margin:0 0 10px;font-size:19px;font-weight:900}
+label{display:block;font-size:13px;margin:0 0 3px}
+input,select,button{font:inherit}
+input,select{width:100%;padding:7px 10px;border:2px solid transparent;border-radius:999px;background:#eaf4fb;color:#10263a}
+input[type=range]{padding:0;background:none;accent-color:var(--gold)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sec{margin:12px 0 6px;font-weight:700;font-size:14px;color:var(--gold)}
+button{cursor:pointer;border:0;border-radius:999px;padding:8px 14px;font-weight:700;background:var(--gold);color:#241800}
+button.ghost{background:rgba(255,255,255,.16);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+#msg{min-height:1.3em;margin:8px 0 0;font-size:13px;color:#ffd9d2}
+ul.r{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+ul.r li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;background:var(--blue2);border-radius:12px;padding:7px 10px}
+ul.r small{display:block;opacity:.75}
+.dot{width:14px;height:14px;border-radius:50%}
+ul.r button{padding:4px 10px;font-size:12px}
+.empty{opacity:.8;margin:0}
+.big{font-weight:900;font-size:clamp(22px,3vw,30px);padding:14px 30px;width:100%;letter-spacing:.02em;border-radius:14px;box-shadow:0 5px 0 #b4780a}
+.big:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #b4780a}
+.seg{display:flex;gap:6px}.seg label{flex:1;margin:0}.seg input{position:absolute;opacity:0;width:0}
+.seg span{display:block;text-align:center;padding:8px;border-radius:999px;background:rgba(255,255,255,.16);cursor:pointer;font-weight:700}
+.seg input:checked+span{background:var(--gold);color:#241800}
+.seg input:focus-visible+span{outline:3px solid #fff}
+.badge{display:inline-block;margin-left:6px;padding:2px 10px;border-radius:999px;background:var(--gold);color:#241800;font-weight:700;font-size:13px}
+.badge.bad{background:#ffd9d2}
+.stage{border-radius:12px;overflow:hidden;margin-top:14px;border:3px solid #fff;background:var(--turf)}
+.stage.dirt{background:var(--dirt)}
+.lane{position:relative;height:36px;background:repeating-linear-gradient(90deg,var(--turf2) 0 40px,var(--turf) 0 80px);border-bottom:2px dashed rgba(255,255,255,.55)}
+.stage.dirt .lane{background:repeating-linear-gradient(90deg,var(--dirt2) 0 40px,var(--dirt) 0 80px)}
+.lane:last-child{border-bottom:0}
+.run{position:absolute;inset:0 26px 0 0}
+.fin{position:absolute;right:0;top:0;bottom:0;width:20px;background:conic-gradient(#10263a 25%,#fff 0 50%,#10263a 0 75%,#fff 0)0 0/10px 10px;border-left:2px solid #fff}
+.chip{position:absolute;top:3px;left:0;transform:translateX(-100%);display:flex;align-items:center;gap:5px;height:30px;padding:0 9px 0 3px;border-radius:999px;background:rgba(16,38,58,.82);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
+.chip i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font-style:normal;font-size:11px;color:#10263a}
+.go .chip i{animation:gal .26s ease-in-out infinite alternate}
+@keyframes gal{to{transform:translateY(-4px) rotate(-8deg)}}
+.meter{display:flex;justify-content:space-between;font-weight:700;margin-top:8px}
+.bar{height:8px;border-radius:4px;background:rgba(255,255,255,.2);overflow:hidden;margin-top:6px}.bar b{display:block;height:100%;width:0;background:var(--gold)}
+#feed{list-style:none;margin:10px 0 0;padding:0;max-height:190px;overflow:auto;display:grid;gap:4px;font-size:14px}
+#feed li{padding:4px 10px;border-radius:8px;background:rgba(255,255,255,.1)}
+#feed li.pre{opacity:.7;font-size:13px}
+ol.res{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+ol.res li{display:grid;grid-template-columns:32px 1fr auto;gap:8px;align-items:center;background:var(--blue2);border-radius:12px;padding:8px 10px;animation:in .35s ease both}
+ol.res li:first-child{background:var(--gold);color:#241800}
+ol.res b{font-size:18px;text-align:center}
+@keyframes in{from{opacity:0;transform:translateX(18px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header><h1>Umamusume Race Simulator</h1><p>Build a roster, set the track, and watch the race play out.</p><div class="flag" aria-hidden="true"></div></header>
+<main>
+<div class="col">
+ <section class="p" aria-labelledby="h-add"><h2 id="h-add">Umamusume</h2><div id="form"></div><p id="msg" role="status"></p></section>
+ <section class="p" aria-labelledby="h-ros"><h2 id="h-ros">Roster <span id="cnt"></span></h2><ul class="r" id="roster"></ul>
+  <div class="row"><button class="ghost" id="sample" type="button">Load sample cast</button><button class="ghost" id="clear" type="button">Clear roster</button></div></section>
+</div>
+<div class="col mid">
+ <section class="p" aria-labelledby="h-trk"><h2 id="h-trk">Track</h2>
+  <div class="sec" style="margin-top:0">Surface</div>
+  <div class="seg"><label><input type="radio" name="surf" value="Turf" checked><span>Turf</span></label><label><input type="radio" name="surf" value="Dirt"><span>Dirt</span></label></div>
+  <div class="sec">Distance: <output id="dv">1600</output> m<span class="badge" id="dc"></span></div>
+  <input type="range" id="dist" min="1200" max="3200" step="100" value="1600" aria-label="Distance in metres">
+  <div class="row"><button class="big" id="go" type="button">RACE!!!</button></div>
+  <div class="stage" id="stage" aria-label="Race track"></div>
+  <div class="meter"><span id="lead">Waiting at the gate</span><span id="mt"></span></div><div class="bar"><b id="prog"></b></div>
+  <ul id="feed" aria-live="polite"></ul>
+ </section>
+</div>
+<div class="col"><section class="p" aria-labelledby="h-res"><h2 id="h-res">Result</h2><p class="empty" id="resempty">No race yet. Add two or more runners, then press Race.</p><ol class="res" id="res"></ol></section></div>
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const RB={S:125,A:100,B:50,C:25,D:0,E:-35,F:-55,G:-100},RK=Object.keys(RB);
+const DT={Sprint:[1200,1400],Mile:[1600,1800],Medium:[2000,2400],Long:[2500,3200]};
+const dtype=d=>Object.keys(DT).find(k=>d>=DT[k][0]&&d<=DT[k][1])||null;
+const ST=["Spd","Sta","Pwr","Gut","Wit"],SN={Spd:"Speed",Sta:"Stamina",Pwr:"Power",Gut:"Guts",Wit:"Wit"};
+const CM={start:["🏁 Cờ xuất phát đã được phất lên!","🏁 TẤT CẢ ĐỒNG LOẠT XUẤT PHÁT!","🔥 Và cuộc đua đã chính thức bắt đầu!"],
+front:["⚡ {name} lập tức lao lên phía trước!","🏇 {name} đang dẫn đầu nhóm Front!"],
+pace:["🏃 {name} đang duy trì một nhịp chạy cực kỳ ổn định!","🎯 {name} đang chọn một vị trí rất đẹp trong đoàn đua!"],
+late:["🔵 {name} vẫn chưa vội bung sức!","👁️ {name} đang âm thầm thu hẹp khoảng cách!"],
+end:["💤 {name} vẫn đang ở phía sau...","🌪️ {name} đang kiên nhẫn giữ sức cho đoạn cuối!"],
+acc:["🔥 {name} ĐANG BỨC TỐC!!","⚡ {name} tăng tốc dữ dội!","🚀 {name} đang tung toàn bộ sức mạnh vào đoạn cuối!"],
+lose:["📉 {name} đang mất đà!","⚠️ {name} đang bị đối thủ bỏ lại!"],
+con:["⚔️ {a} và {b} đang tranh giành vị trí!","🔥 {a} không chịu nhường đường cho {b}!"],
+cw:["💪 {winner} chiếm được vị trí!","🏇 {winner} ép {loser} phải lùi lại!"],
+cl:["😣 {loser} thất bại trong pha tranh chấp!","📉 {loser} buộc phải nhường vị trí!"],
+fin:["🏁 Chỉ còn vài trăm mét cuối cùng!","⚡ Đây là thời khắc quyết định!"]};
+const pick=a=>a[Math.random()*a.length|0],rnd=(a,b)=>a+Math.random()*(b-a);
+const fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]);
+const esc=s=>s.replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+function wch(v,w){let r=Math.random()*w.reduce((a,b)=>a+b),i=0;for(;i<v.length-1;i++){r-=w[i];if(r<0)break}return v[i]}
+const calcX=c=>c.Pwr*1.25+c.Spd+c.Wit*.5;
+const tot=c=>ST.reduce((s,k)=>s+c[k],0);
+/* ---- engine: port of the Python prototype ---- */
+function preRng(c,avg){const d=tot(c)-avg;
+ const w=d>=40?[2,3,5,7,10,16,16,13,9,5]:d>=0?[3,4,6,9,11,15,15,12,9,5]:d>=-40?[5,8,10,12,13,11,10,8,5,3]:[8,11,12,13,14,8,7,5,4,2];
+ return wch([-25,-20,-15,-10,-5,5,10,15,20,25],w)}
+function effect(c){const r=Math.random();
+ if(r<.08){c.Sta=Math.max(0,c.Sta-20);c.xm*=1.2;return`💨 ${c.name} bị Rushed! -20 Stamina, X x1.20`}
+ if(r<.12){c.Spd=Math.max(0,c.Spd-30);c.Sta=Math.min(150,c.Sta+5);c.xm*=.8;return`🌱 ${c.name} vấp cỏ! -30 Speed, +5 Stamina, X x0.80`}
+ if(r<.17){c.sxm*=.5;return`⏰ ${c.name} xuất phát trễ! X đầu Start Race x0.50`}return null}
+function distBonus(c,o,t){if(!o.length)return 0;const av=k=>o.reduce((s,x)=>s+x[k],0)/o.length;
+ const [s,a,p,g,w]=ST.map(av);let q;
+ if(t=="Sprint")q=[c.Spd>=s*1.4,c.Pwr>=a*1.1,c.Wit>=p*1.35];
+ else if(t=="Mile")q=[c.Spd>=s*1.25,c.Pwr>=a*1.2,c.Wit>=p*1.15];
+ else if(t=="Medium")q=[c.Spd>=s*1.1,c.Sta>=a*1.1,c.Pwr>=p*1.1];
+ else q=[c.Sta>=s*1.25,c.Pwr>=a*1.05,c.Gut>=p*1.05];
+ return q.some(Boolean)?50:0}
+function finishPower(c,t){
+ const base=c.Spd*.35+c.Pwr*.2+(c.Sta/150)*100*.2+(c.Gut/150)*100*.15+c.Wit*.1;
+ const df=t=="Sprint"?c.Spd*.06+c.Pwr*.02+c.Wit*.01:t=="Mile"?c.Spd*.04+c.Pwr*.03+c.Sta*.01:t=="Medium"?c.Spd*.03+c.Sta*.03+c.Pwr*.02:c.Sta*.05+c.Gut*.02+c.Pwr*.01;
+ return(base+df)*(1+(c.Gut-50)/1000)*c.xm*rnd(.95,1.05)}
+function gapText(d){const L=Math.abs(d)/15;if(L<.1)return"Nose";if(L<.2)return"Head";
+ if(L<=3){const r=Math.max(.5,Math.floor(L*2+.5)/2);if(r==.5)return"1/2 length";return Number.isInteger(r)?`${r} length${r>1?"s":""}`:`${Math.floor(r)} 1/2 lengths`}
+ return`${Math.floor(L+.5)} lengths`}
+function runRace(src,dist,surf){
+ const type=dtype(dist),log=[],P=(ph,t)=>log.push({ph,t});
+ const cs=src.map(c=>({...c,score:100+RB[c.style_rank]+RB[c.track_rank[type]]+RB[c.surface[surf]],xm:1,sxm:1}));
+ const contest=(a,b,ph)=>{const r=c=>calcX(c)*c.xm*rnd(.9,1.1);const win=r(a)>=r(b)?a:b,lo=win===a?b:a;
+  P(ph,fmt(pick(CM.con),{a:a.name,b:b.name}));win.score+=50;lo.score-=25;
+  P(ph,fmt(pick(CM.cw),{winner:win.name,loser:lo.name}));P(ph,fmt(pick(CM.cl),{loser:lo.name}))};
+ cs.forEach(c=>{const b=distBonus(c,cs.filter(o=>o!==c),type);c.score+=b;P("pre",b?`🎯 ${c.name} meets the ${type} condition: +50 Victory Score`:`▫️ ${c.name}: no Distance Bonus`)});
+ const avg=cs.reduce((s,c)=>s+tot(c),0)/cs.length;
+ cs.forEach(c=>{const r=preRng(c,avg);c.score+=r;const e=effect(c);P("pre",`🎲 ${c.name}: RNG ${r>0?"+":""}${r}${e?" · "+e:""}`)});
+ P("start",pick(CM.start));
+ cs.forEach(c=>P("start",fmt(pick(CM[c.style.toLowerCase()]),{name:c.name})));
+ const fp=cs.filter(c=>c.style=="Front"||c.style=="Pace");
+ for(let i=fp.length;i>1;){const j=Math.random()*i--|0;[fp[i],fp[j]]=[fp[j],fp[i]]}
+ for(let i=0;i<fp.length-1;i++){const a=fp[i],b=fp[i+1];if(Math.random()<.65){const oa=a.xm,ob=b.xm;a.xm*=a.sxm;b.xm*=b.sxm;contest(a,b,"start");a.xm=oa;b.xm=ob}}
+ const pc=cs.filter(c=>c.style=="Pace"),lt=cs.filter(c=>c.style=="Late");
+ lt.forEach(l=>P("mid",`🔵 ${l.name} đang áp sát nhóm Pace!`));
+ lt.forEach(l=>pc.forEach(p=>{if(Math.random()<.5)contest(l,p,"mid")}));
+ cs.forEach(c=>{if(Math.random()<.08){c.score-=10;c.xm*=.9;P("mid",fmt(pick(CM.lose),{name:c.name})+" (-10 Victory Score)")}});
+ P("end",pick(CM.fin));
+ cs.forEach(c=>{c.fp=finishPower(c,type);c.final=(c.score*.7+c.fp*.3)*rnd(.97,1.03);P("end",fmt(pick(CM.acc),{name:c.name}))});
+ const res=[...cs].sort((a,b)=>b.final-a.final);
+ res.forEach((c,i)=>c.gap=i?gapText(res[i-1].final-c.final):"");
+ return{type,res,log}}
+/* ---- roster + form ---- */
+const RS=["Front","Pace","Late","End"],DK=Object.keys(DT);
+const sel=(id,o,v)=>`<select id="${id}">${o.map(x=>`<option${x==v?" selected":""}>${x}</option>`).join("")}</select>`;
+$("form").innerHTML=`<label for="f-name">Name</label><input id="f-name" maxlength="40" autocomplete="off" placeholder="e.g. Special Week">
+<div class="sec">Stats</div><div class="g3">${ST.map(k=>`<div><label for="f-${k}">${SN[k]}</label><input id="f-${k}" type="number" min="0" max="300" value="100"></div>`).join("")}</div>
+<div class="sec">Running style</div><div class="g2"><div><label for="f-style">Style</label>${sel("f-style",RS,"Pace")}</div><div><label for="f-sr">Style rank</label>${sel("f-sr",RK,"A")}</div></div>
+<div class="sec">Distance aptitude</div><div class="g2">${DK.map(k=>`<div><label for="f-d-${k}">${k}</label>${sel("f-d-"+k,RK,"C")}</div>`).join("")}</div>
+<div class="sec">Surface aptitude</div><div class="g2">${["Turf","Dirt"].map(k=>`<div><label for="f-s-${k}">${k}</label>${sel("f-s-"+k,RK,"A")}</div>`).join("")}</div>
+<div class="row"><button id="add" type="button">Add to roster</button><button class="ghost" id="cancel" type="button" hidden>Cancel edit</button></div>`;
+let R=[],ed=-1,busy=false;
+try{R=JSON.parse(localStorage.getItem("uma-roster")||"[]")}catch(e){R=[]}
+const store=()=>{try{localStorage.setItem("uma-roster",JSON.stringify(R))}catch(e){}};
+const hue=i=>`hsl(${i*47%360} 85% 65%)`;
+function readForm(){const name=$("f-name").value.trim();
+ if(!name)return"Enter a name first.";
+ if(R.some((c,i)=>c.name.toLowerCase()==name.toLowerCase()&&i!=ed))return`${name} is already on the roster. Names must be unique.`;
+ const c={name,style:$("f-style").value,style_rank:$("f-sr").value,track_rank:{},surface:{Turf:$("f-s-Turf").value,Dirt:$("f-s-Dirt").value}};
+ for(const k of ST){const v=+$("f-"+k).value;if(!(v>=0&&v<=300))return`${SN[k]} must be between 0 and 300.`;c[k]=v}
+ DK.forEach(k=>c.track_rank[k]=$("f-d-"+k).value);return c}
+function setForm(c){$("f-name").value=c.name;ST.forEach(k=>$("f-"+k).value=c[k]);$("f-style").value=c.style;$("f-sr").value=c.style_rank;
+ DK.forEach(k=>$("f-d-"+k).value=c.track_rank[k]);$("f-s-Turf").value=c.surface.Turf;$("f-s-Dirt").value=c.surface.Dirt}
+function stopEdit(){ed=-1;$("add").textContent="Add to roster";$("cancel").hidden=true;$("f-name").value=""}
+function renderRoster(){
+ $("cnt").textContent=R.length?`(${R.length})`:"";
+ $("roster").innerHTML=R.length?R.map((c,i)=>`<li><span class="dot" style="background:${hue(i)}"></span><div>${esc(c.name)}<small>${c.style} ${c.style_rank} · total ${tot(c)}</small></div><span><button class="ghost" data-e="${i}" type="button">Edit</button> <button class="ghost" data-r="${i}" type="button" aria-label="Remove ${esc(c.name)}">✕</button></span></li>`).join(""):`<li style="display:block"><p class="empty">No runners yet. Fill in the form above, or load the sample cast.</p></li>`;
+ sync()}
+$("add").onclick=()=>{const c=readForm();if(typeof c=="string"){$("msg").textContent=c;return}
+ $("msg").textContent="";ed>=0?R[ed]=c:R.push(c);stopEdit();store();renderRoster()};
+$("cancel").onclick=()=>{stopEdit();$("msg").textContent=""};
+$("roster").onclick=e=>{const b=e.target.closest("button");if(!b||busy)return;
+ if(b.dataset.e!=null){ed=+b.dataset.e;setForm(R[ed]);$("add").textContent="Save changes";$("cancel").hidden=false;$("f-name").focus()}
+ if(b.dataset.r!=null){R.splice(+b.dataset.r,1);stopEdit();store();renderRoster()}};
+$("clear").onclick=()=>{if(busy)return;R=[];stopEdit();store();renderRoster()};
+const SAMPLE=[["Agnes Digital",135,105,115,90,130,"Late","A","E","S","A","F"],["Special Week",115,130,105,110,100,"Pace","A","C","A","A","A"],["Vodka",135,90,135,100,95,"Late","A","A","A","C","G"],["Mejiro McQueen",120,145,90,120,110,"Pace","A","G","C","A","S"],["Gold Ship",110,120,135,130,70,"End","A","G","C","A","A"],["Gentildonna",105,100,175,100,90,"Pace","A","G","B","S","A"],["Symboli Rudolf",130,110,130,100,120,"Late","A","G","B","S","A"],["Nice Nature",90,135,110,100,175,"Late","A","G","C","A","A"],["Lovcen",130,145,105,110,110,"Front","S","G","A","A","S"]];
+$("sample").onclick=()=>{if(busy)return;R=SAMPLE.map(([name,Spd,Sta,Pwr,Gut,Wit,style,style_rank,a,b,c,d])=>({name,Spd,Sta,Pwr,Gut,Wit,style,style_rank,track_rank:{Sprint:a,Mile:b,Medium:c,Long:d},surface:{Turf:"A",Dirt:"A"}}));stopEdit();store();renderRoster()};
+/* ---- track settings ---- */
+const surf=()=>document.querySelector("[name=surf]:checked").value;
+function sync(){const d=+$("dist").value,t=dtype(d);$("dv").textContent=d;
+ $("dc").textContent=t||"No class: pick 1400 or 1600";$("dc").classList.toggle("bad",!t);
+ $("go").disabled=busy||!t||R.length<2;$("go").title=R.length<2?"Add at least two runners":""}
+$("dist").oninput=sync;
+document.querySelectorAll("[name=surf]").forEach(r=>r.onchange=()=>{if(!busy)drawStage([])});
+/* ---- stage + animation ---- */
+const BIAS={Front:.07,Pace:.035,Late:-.035,End:-.07};
+function drawStage(rs){const s=$("stage");s.className="stage"+(surf()=="Dirt"?" dirt":"");
+ s.innerHTML=(rs.length?rs:R).map((c,i)=>`<div class="lane"><div class="run"><div class="chip" id="ch${i}" style="left:0"><i style="background:${hue(R.findIndex(x=>x.name==c.name))}">${esc(c.name.slice(0,2))}</i>${esc(c.name)}</div></div><div class="fin"></div></div>`).join("")}
+function addLine(t,pre){const li=document.createElement("li");li.textContent=t;if(pre)li.className="pre";$("feed").prepend(li)}
+function showResult(res){$("resempty").hidden=true;
+ $("res").innerHTML=res.map((c,i)=>`<li style="animation-delay:${i*.12}s"><b>${i+1}</b><div>${esc(c.name)}<small style="display:block;opacity:.8">${i?"Behind by "+c.gap:"Winner"}</small></div><span>${c.final.toFixed(1)}</span></li>`).join("")}
+function race(){
+ const dist=+$("dist").value,sf=surf(),out=runRace(R,dist,sf),res=out.res;
+ busy=true;sync();$("res").innerHTML="";$("resempty").hidden=false;$("resempty").textContent="Racing…";$("feed").innerHTML="";
+ $("stage").classList.add("go");
+ const lanes=R.map(c=>res.find(r=>r.name==c.name));drawStage(lanes);$("stage").classList.add("go");
+ const top=res[0].final,T=lanes.map(c=>1+Math.min(.15,(top-c.final)*.0015)),Tmax=Math.max(...T);
+ const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches,dur=reduce?200:(8+dist/3200*6)*1000;
+ const span={start:[.01,.12],mid:[.15,.6],end:[.7,.95]},cnt={};out.log.forEach(l=>cnt[l.ph]=(cnt[l.ph]||0)+1);
+ const seen={},ev=out.log.map(l=>{if(l.ph=="pre")return{f:0,t:l.t,pre:1};const n=seen[l.ph]=(seen[l.ph]||0)+1,[a,b]=span[l.ph];return{f:a+(b-a)*n/(cnt[l.ph]+1),t:l.t}});
+ ev.sort((a,b)=>a.f-b.f);let k=0,t0=null;
+ (function frame(ts){t0??=ts;const t=Math.min((ts-t0)/dur,Tmax);let lead=0,ln="";
+  lanes.forEach((c,i)=>{const u=Math.min(1,t/T[i]),x=u+BIAS[c.style]*Math.sin(Math.PI*u);
+   $("ch"+i).style.left=(x*100)+"%";if(x>lead){lead=x;ln=c.name}});
+  while(k<ev.length&&ev[k].f<=t){addLine(ev[k].t,ev[k].pre);k++}
+  $("lead").textContent=`Leading: ${ln}`;$("mt").textContent=`${Math.max(0,Math.round(dist*(1-lead)))} m to go`;$("prog").style.width=Math.min(100,lead*100)+"%";
+  if(t<Tmax){requestAnimationFrame(frame);return}
+  while(k<ev.length)addLine(ev[k++].t);
+  $("stage").classList.remove("go");$("lead").textContent=`Winner: ${res[0].name}`;$("mt").textContent=`${out.type} · ${dist} m ${sf}`;
+  showResult(res);busy=false;sync()})(performance.now());
+ requestAnimationFrame(()=>{})}
+$("go").onclick=()=>{if(!busy)race()};
+renderRoster();drawStage([]);
+</script></body></html>
